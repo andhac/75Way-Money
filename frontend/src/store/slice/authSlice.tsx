@@ -1,19 +1,27 @@
-import type { PayloadAction} from "@reduxjs/toolkit";
-import { createSlice } from "@reduxjs/toolkit";
+import type {PayloadAction} from "@reduxjs/toolkit";
+import {createSlice} from "@reduxjs/toolkit";
 import {api} from "../../services/api.ts";
 
 interface AuthState {
     accessToken: string | null;
+    AdminAccess_token:string | null;
     refreshToken: string | null;
     isAuthenticated: boolean;
+    isAdminAuthenticated: boolean;
     loading: boolean;
+    balance:string
+    User: User[]
 }
 
 const initialState: AuthState = {
     accessToken: localStorage.getItem('access_token') ?? "",
+    AdminAccess_token:localStorage.getItem('AdminAccess_token') ?? "",
     refreshToken: localStorage.getItem('refresh_token') ?? "",
     isAuthenticated: Boolean(localStorage.getItem('access_token')),
+    isAdminAuthenticated:Boolean(localStorage.getItem('AdminAccess_token')),
     loading: false,
+    balance:"",
+    User: []
 }
 
 export const authSlice = createSlice({
@@ -38,11 +46,7 @@ export const authSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addMatcher(api.endpoints.login.matchPending, (state) => {
-            state.loading = true;
-            return state;
-        })
-            .addMatcher(api.endpoints.login.matchFulfilled, (state, action) => {
+        builder.addMatcher(api.endpoints.login.matchFulfilled, (state, action) => {
                 const data = action.payload.data;
                 console.log(data);
                 state.loading = false;
@@ -57,17 +61,41 @@ export const authSlice = createSlice({
                 state.loading = false;
                 return state;
             })
-            .addMatcher(api.endpoints.register.matchPending, (state) => {
-                state.loading = true;
-                return state;
-            })
             .addMatcher(api.endpoints.register.matchFulfilled, (state) => {
                 state.loading = false;
+                return state;
+            })
+            .addMatcher(api.endpoints.adminLogin.matchFulfilled, (state,action) => {
+                const data = action.payload.data;
+                state.loading = false;
+                localStorage.setItem("AdminAccess_token", data.token);
+                state.accessToken = data.token;
+                state.isAdminAuthenticated = true;
                 return state;
             })
             .addMatcher(api.endpoints.register.matchRejected, (state) => {
                 state.loading = false;
                 return state;
-            });
+            })
+            .addMatcher(api.endpoints.getBalance.matchFulfilled, (state, action) => {
+                const data = action.payload.data;
+                state.balance = data.balance;
+                state.loading = false;
+                return state;
+            })
+            .addMatcher(api.endpoints.getUserByNumber.matchFulfilled, (state,action) => {
+                state.User = action.payload.data;
+                state.loading = false;
+                return state;
+            })
+        //Todo:Make New Wallet Slice
+            .addMatcher(api.endpoints.sendMoney.matchFulfilled, (state) => {
+                state.loading = false;
+                return state;
+            })
+            .addMatcher(api.endpoints.addFund.matchFulfilled, (state) => {
+                state.loading = false;
+                return state;
+            })
     }
 })

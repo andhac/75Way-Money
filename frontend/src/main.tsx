@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')!).render(
             <ToastContainer/>
             <Provider store={store}>
                 <App/>
-            </Provider> ̰
+            </Provider>
         </BrowserRouter>
     </React.StrictMode>
 )

@@ -1,4 +1,7 @@
-import AccountCircle from "@mui/icons-material/AccountCircle";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import LogoutIcon from "@mui/icons-material/Logout";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import SettingsIcon from "@mui/icons-material/Settings";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -11,9 +14,8 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../store/store";
 import { motion } from "framer-motion";
 
-
-export default function Authenticated() {
-    const { isAuthenticated } = useAppSelector((state) => state.auth);
+export default function AdminNavbar() {
+    const { isAdminAuthenticated } = useAppSelector((state) => state.auth);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const navigate = useNavigate();
 
@@ -21,7 +23,7 @@ export default function Authenticated() {
         setAnchorEl(event.currentTarget);
     };
 
-    const handleClose = (route?: "profile" | "logout") => () => {
+    const handleClose = (route?: "dashboard" | "settings" | "logout") => () => {
         setAnchorEl(null);
         if (route) {
             navigate(`/${route}`);
@@ -29,15 +31,15 @@ export default function Authenticated() {
     };
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            navigate("/login");
+        if (!isAdminAuthenticated) {
+            navigate("//admin-paiselogin");
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAdminAuthenticated, navigate]);
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static" sx={{ backgroundColor: "#1e1e2f", boxShadow: "none" }}>
-                <Toolbar>
+            <AppBar position="static" sx={{ backgroundColor: "#121212", boxShadow: "none" }}>
+                <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
                     <Box
                         display="flex"
                         gap={2}
@@ -48,12 +50,12 @@ export default function Authenticated() {
                     >
                         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
                             <Typography color="white" variant="h5" fontFamily="'Poppins', sans-serif" fontWeight={600}>
-                                Paisa Bhejo
+                                Admin Panel
                             </Typography>
                         </motion.div>
                     </Box>
-                    {isAuthenticated && (
-                        <Box marginLeft="auto">
+                    {isAdminAuthenticated && (
+                        <Box>
                             <motion.div whileHover={{ scale: 1.1 }}>
                                 <IconButton
                                     size="large"
@@ -62,7 +64,7 @@ export default function Authenticated() {
                                     onClick={handleMenu}
                                     color="inherit"
                                 >
-                                    <AccountCircle sx={{ fontSize: 32 }} />
+                                    <AdminPanelSettingsIcon sx={{ fontSize: 32 }} />
                                 </IconButton>
                             </motion.div>
                             <Menu
@@ -74,11 +76,17 @@ export default function Authenticated() {
                                 open={Boolean(anchorEl)}
                                 onClose={handleClose()}
                             >
-                                <MenuItem onClick={handleClose("profile")}>
-                                    <Typography fontFamily="'Poppins', sans-serif">Profile</Typography>
+                                <MenuItem onClick={handleClose("dashboard")}>
+                                    <DashboardIcon sx={{ marginRight: 1 }} />
+                                    <Typography fontFamily="'Poppins', sans-serif">Dashboard</Typography>
+                                </MenuItem>
+                                <MenuItem onClick={handleClose("settings")}>
+                                    <SettingsIcon sx={{ marginRight: 1 }} />
+                                    <Typography fontFamily="'Poppins', sans-serif">Settings</Typography>
                                 </MenuItem>
                                 <MenuItem onClick={handleClose("logout")}>
-                                    <Typography fontFamily="'Poppins', sans-serif">Logout</Typography>
+                                    <LogoutIcon sx={{ marginRight: 1, color: "red" }} />
+                                    <Typography fontFamily="'Poppins', sans-serif" color="red">Logout</Typography>
                                 </MenuItem>
                             </Menu>
                         </Box>
